@@ -1,6 +1,6 @@
-@extends('layouts.app')
+{{-- @extends('layouts.app') --}}
 
-@section('content')
+{{-- @section('content') --}}
 
 <!-- ここにページ毎のコンテンツを書く -->
 
@@ -29,4 +29,4 @@
 
 {!! link_to_route('tasks.create', '新規タスクの登録', [], ['class' => 'btn btn-primary']) !!}
 
-@endsection
+{{-- @endsection --}}

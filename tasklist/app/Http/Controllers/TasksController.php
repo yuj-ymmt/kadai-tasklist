@@ -15,11 +15,24 @@ class TasksController extends Controller
      */
     public function index()
     {
-        $tasks = Task::all();
+        $data = [];
+        if(\Auth::check()){
+            $user = \Auth::user();
+            $tasks = $user->tasks()->paginate(10);;
+            $data = [
+                'tasks' => $tasks,
+                ];
+        }
+        return view('welcome', $data);
         
-        return view("tasks.index", [
-             "tasks" => $tasks,
-            ]);
+        // $tasks = Task::all();
+        
+        // return view("tasks.index", [
+        //      "tasks" => $tasks,
+        //     ]);
+        
+        
+        
     }
 
     /**
@@ -48,12 +61,17 @@ class TasksController extends Controller
                 "content" => "required"
             ]);
         //
-        $task = new Task;
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
+        // $task = new Task;
+        // $task->status = $request->status;
+        // $task->content = $request->content;
+        // $task->save();
         
-        return redirect('/');
+        $request->user()->tasks()->create([
+                'status' => $request->status,
+                'content' => $request->content,
+            ]);
+        
+        return redirect("/");
     }
 
     /**
@@ -66,9 +84,13 @@ class TasksController extends Controller
     {
         //
         $task = Task::findOrFail($id);
-        return view('tasks.show', [
-            'task' => $task,
-        ]);
+        if (\Auth::id() === $task->user_id) {
+            return view('tasks.show', [
+                'task' => $task,
+            ]);
+        }else{
+            return redirect("/");
+        }
     }
 
     /**
@@ -104,11 +126,13 @@ class TasksController extends Controller
             ]);
             
         $task = Task::findOrFail($id);
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
+        if (\Auth::id() === $task->user_id) {
+            $task->status = $request->status;
+            $task->content = $request->content;
+            $task->save();
+        }
 
-        return redirect('/');
+        return redirect("/");
     }
 
     /**
@@ -122,9 +146,11 @@ class TasksController extends Controller
         //
         $task = Task::findOrFail($id);
         // メッセージを削除
-        $task->delete();
+        if (\Auth::id() === $task->user_id) {
+            $task->delete();
+        }
 
         // トップページへリダイレクトさせる
-        return redirect('/');
+        return redirect("/");
     }
 }
